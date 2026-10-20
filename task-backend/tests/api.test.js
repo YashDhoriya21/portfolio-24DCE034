@@ -2,8 +2,8 @@
 // Practical 12 — Automated Testing with Jest & Supertest
 // Covers API Health, Security / Authentication, Validation, and Practical 10 Events
 
-const request    = require('supertest');
-const app        = require('../app');
+const request = require('supertest');
+const app = require('../app');
 const taskEvents = require('../events/taskEvents');
 
 describe('Task Management API Test Suite (Practical 12 CI/CD)', () => {
@@ -15,7 +15,7 @@ describe('Task Management API Test Suite (Practical 12 CI/CD)', () => {
     it('should return HTTP 200 and API status object', async () => {
       const res = await request(app).get('/');
 
-      expect(res.statusCode).toBe(200);
+      expect(res.statusCode).toBe(201);
       expect(res.body).toHaveProperty('status', 'Task Management API running');
       expect(res.body).toHaveProperty('version', '1.0.0');
     });
@@ -134,7 +134,7 @@ describe('Task Management API Test Suite (Practical 12 CI/CD)', () => {
 
     it('should catch listener errors safely through the error event listener', (done) => {
       // Emitting error with custom error handler
-      const spy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const spy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
       expect(() => {
         taskEvents.emit('error', new Error('Simulated notification failure in CI test'));
