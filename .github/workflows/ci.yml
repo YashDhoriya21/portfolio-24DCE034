@@ -1,0 +1,80 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  # -------------------------------------------------------------
+  # Job 1: Backend Testing (Jest, Supertest, Events, Security)
+  # -------------------------------------------------------------
+  backend-test:
+    name: Backend Tests & Quality Checks
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:6-jammy
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval \"db.adminCommand('ping').ok\""
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: task-backend/package-lock.json
+
+      - name: Install Backend Dependencies
+        working-directory: ./task-backend
+        run: npm ci || npm install
+
+      - name: Run Backend Automated Test Suite
+        working-directory: ./task-backend
+        env:
+          NODE_ENV: test
+          PORT: 5000
+          MONGO_URI: mongodb://localhost:27017/testdb
+          JWT_SECRET: ci_github_actions_test_jwt_secret_key_32chars
+        run: npm test
+
+  # -------------------------------------------------------------
+  # Job 2: Frontend Production Build & Bundle Verification
+  # -------------------------------------------------------------
+  frontend-build:
+    name: Frontend Build & Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: student-portfolio/package-lock.json
+
+      - name: Install Frontend Dependencies
+        working-directory: ./student-portfolio
+        run: npm ci || npm install
+
+      - name: Build React Application
+        working-directory: ./student-portfolio
+        env:
+          VITE_API_BASE_URL: ''
+        run: npm run build

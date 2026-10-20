@@ -1,0 +1,50 @@
+.about-section {
+  background-color: var(--section-bg);
+  padding: 48px 24px;
+  display: flex;
+  justify-content: center;
+}
+
+.about-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 40px 48px;
+  max-width: 680px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.about-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 10px;
+}
+
+.about-divider {
+  width: 40px;
+  height: 3px;
+  background: var(--primary-blue);
+  border-radius: 2px;
+  margin: 0 auto 20px;
+}
+
+.about-text {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  line-height: 1.75;
+  font-weight: 400;
+  text-align: center;
+}
+
+.about-link {
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.about-link:hover {
+  text-decoration: underline;
+}

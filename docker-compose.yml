@@ -1,0 +1,75 @@
+services:
+  # -------------------------------------------------------------
+  # 1. MongoDB Database Service
+  # -------------------------------------------------------------
+  mongodb:
+    image: mongo:6-jammy
+    container_name: awdf-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # -------------------------------------------------------------
+  # 2. Node.js Express Backend Service
+  # -------------------------------------------------------------
+  backend:
+    build:
+      context: ./task-backend
+      dockerfile: Dockerfile
+    container_name: awdf-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - HOST=0.0.0.0
+      - MONGO_URI=mongodb://mongodb:27017/taskdb
+      - JWT_SECRET=${JWT_SECRET:-practical_11_secure_jwt_secret_token_key_32chars}
+      - CORS_ORIGIN=http://localhost:5173
+      - NODE_ENV=production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # -------------------------------------------------------------
+  # 3. React Vite Frontend Service (Nginx Multi-stage)
+  # -------------------------------------------------------------
+  frontend:
+    build:
+      context: ./student-portfolio
+      dockerfile: Dockerfile
+    container_name: awdf-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# ---------------------------------------------------------------
+# Named Persistent Storage Volume
+# ---------------------------------------------------------------
+volumes:
+  mongo_data:
+    name: awdf-mongo-data
+
+# ---------------------------------------------------------------
+# Isolated Bridge Network
+# ---------------------------------------------------------------
+networks:
+  app-network:
+    name: awdf-network
+    driver: bridge
