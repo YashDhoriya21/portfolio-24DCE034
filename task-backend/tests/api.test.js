@@ -15,7 +15,7 @@ describe('Task Management API Test Suite (Practical 12 CI/CD)', () => {
     it('should return HTTP 200 and API status object', async () => {
       const res = await request(app).get('/');
 
-      expect(res.statusCode).toBe(201);
+      expect(res.statusCode).toBe(200);
       expect(res.body).toHaveProperty('status', 'Task Management API running');
       expect(res.body).toHaveProperty('version', '1.0.0');
     });
